@@ -31,6 +31,17 @@ jobs:
           toolchain: stable
           override: true
       
+      - name: Cache Rust dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+      
       - name: Generate Documentation
         run: |
           cargo doc --no-deps --document-private-items
@@ -38,8 +49,9 @@ jobs:
           cp -r target/doc/* docs/
       
       - name: Generate Landing Page
+        shell: pwsh
         run: |
-          cat > docs/index.html << 'EOF'
+          $htmlContent = @'
           <!DOCTYPE html>
           <html lang="en" class="dark">
           
@@ -177,7 +189,9 @@ jobs:
           </body>
           
           </html>
-          EOF
+          '@
+          
+          $htmlContent | Out-File -FilePath "docs/index.html" -Encoding UTF8
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
