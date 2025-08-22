@@ -1,0 +1,200 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  # Build job
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      
+      - name: Generate Documentation
+        run: |
+          cargo doc --no-deps --document-private-items
+          mkdir -p docs
+          cp -r target/doc/* docs/
+      
+      - name: Generate Landing Page
+        run: |
+          cat > docs/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en" class="dark">
+          
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Luuma Cursor Helper - Documentation</title>
+            <script src="https://cdn.tailwindcss.com"></script>
+            <script src="https://cdn.jsdelivr.net/npm/lucide-react@0.541.0/dist/cjs/lucide-react.min.js"></script>
+            <script>
+              tailwind.config = {
+                darkMode: 'class',
+                theme: {
+                  extend: {
+                    colors: {
+                      'rust-dark': '#353535',
+                      'rust-darker': '#2A2A2A',
+                      'rust-sidebar': '#505050',
+                      'rust-sidebar-hover': '#676767',
+                      'rust-border': '#999',
+                      'rust-text': '#ddd',
+                      'rust-link': '#d2991d',
+                      'rust-code': '#2A2A2A',
+                      'rust-highlight': '#494a3d',
+                    }
+                  }
+                }
+              }
+            </script>
+            <style>
+              body {
+                font-family: 'Fira Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              }
+          
+              code {
+                font-family: 'Fira Mono', 'Source Code Pro', 'Monaco', 'Menlo', monospace;
+              }
+            </style>
+          </head>
+          
+          <body class="bg-rust-dark text-rust-text h-screen flex flex-col">
+            <!-- Navbar -->
+            <nav class="bg-rust-darker border-b border-rust-border flex-shrink-0">
+              <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                  <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                      <h1 class="text-xl font-bold text-rust-text flex items-center">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.122 2.122">
+                          </path>
+                        </svg>
+                        Luuma Cursor Helper
+                      </h1>
+                    </div>
+                  </div>
+                  <div class="flex items-center space-x-6">
+                    <a href="luuma_cursor_helper/index.html"
+                      class="text-rust-link hover:text-yellow-400 transition-colors text-sm flex items-center">
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                        </path>
+                      </svg>
+                      API Documentation
+                    </a>
+                    <a href="https://github.com/YoruAkio/LuumaCursorHelper"
+                      class="text-rust-link hover:text-yellow-400 transition-colors text-sm flex items-center">
+                      <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                      </svg>
+                      GitHub
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </nav>
+          
+            <!-- Main Content - Hero Section -->
+            <main class="flex-1 flex items-center justify-center">
+              <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <!-- Main Heading -->
+                <h2 class="text-4xl font-bold text-rust-text mb-6">
+                  High-performance Rust library for cursor detection and monitoring
+                </h2>
+           
+                <!-- Description -->
+                <p class="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+                  Monitor cursor position, type, and mouse clicks with millisecond precision using lock-free atomic operations and
+                  optimized event processing.
+                </p>
+          
+                <!-- Code Example -->
+                <div class="bg-rust-code rounded-lg p-6 mb-8 max-w-2xl mx-auto">
+                  <div class="text-left">
+                    <div class="text-sm text-gray-400 mb-3">Add to your Cargo.toml:</div>
+                    <pre class="text-rust-text text-sm overflow-x-auto"><code>[dependencies]
+          luuma_cursor_helper = { git = "https://github.com/YoruAkio/LuumaCursorHelper" }</code></pre>
+                  </div>
+                </div>
+          
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                  <a href="luuma_cursor_helper/index.html"
+                    class="bg-rust-link hover:bg-yellow-600 text-white px-8 py-3 rounded-md font-medium transition-colors flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253">
+                      </path>
+                    </svg>
+                    View API Documentation
+                  </a>
+                  <a href="https://github.com/YoruAkio/LuumaCursorHelper"
+                    class="bg-rust-sidebar hover:bg-rust-sidebar-hover text-rust-text px-8 py-3 rounded-md font-medium transition-colors border border-rust-border flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                    </svg>
+                    View on GitHub
+                  </a>
+                </div>
+              </div>
+            </main>
+          
+            <!-- Footer -->
+            <footer class="bg-rust-darker border-t border-rust-border flex-shrink-0">
+              <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div class="text-center text-gray-400 text-sm">
+                  <p>Made with ❤️ by <a href="https://github.com/YoruAkio" class="text-rust-link hover:text-yellow-400">Yoru Akio</a></p>
+                </div>
+              </div>
+            </footer>
+          </body>
+          
+          </html>
+          EOF
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+  # Deployment job
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
