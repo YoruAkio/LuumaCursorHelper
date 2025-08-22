@@ -1,0 +1,30 @@
+[package]
+name = "luuma_cursor_helper"
+version = "0.1.0"
+edition = "2021"
+authors = ["Yoru Akio"]
+description = "A Rust library for detecting cursor position, type, and mouse clicks with real-time logging"
+license = "MIT"
+repository = "https://github.com/YoruAkio/LuumaCursorHelper"
+keywords = ["cursor", "mouse", "input", "detection", "windows"]
+categories = ["input", "system"]
+
+[dependencies]
+rdev = "0.5.3"
+device_query = "4.0.1"
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+windows = { version = "0.61.3", features = ["Win32_UI_WindowsAndMessaging", "Win32_Foundation"] }
+
+[lib]
+name = "luuma_cursor_helper"
+path = "src/lib.rs"
+
+[[bin]]
+name = "luuma_cursor_helper"
+path = "src/main.rs"
+
+[[example]]
+name = "cli"
+path = "examples/cli.rs"
