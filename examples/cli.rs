@@ -1,4 +1,4 @@
-use luuma_cursor_helper::{CursorDetector, CursorState, CursorEvent};
+use luuma_cursor_helper::{CursorDetector, CursorState, CursorEvent, MouseButton};
 
 fn main() {
     println!("=== Luuma Cursor Helper Library Example ===\n");
